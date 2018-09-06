@@ -1,4 +1,5 @@
 import sys
+import argparse
 import struct
 import pyaudio
 
@@ -25,14 +26,19 @@ class ByteBeat:
             rate=ByteBeat.RATE,
             output=True
         )
-
-        buffer = self.__buffer()
-        stream.write(buffer)
+        stream.write(self.__buffer())
         stream.stop_stream()
         stream.close()
         p.terminate()
 
 
 if __name__ == "__main__":
-    _, f, dur = sys.argv
-    ByteBeat(formula=f, duration=dur).play()
+    # parse arguments
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+    parser.add_argument("formula", type=str, help="set bytebeat code")
+    parser.add_argument("-t", "--time", type=int, help="set playing time[sec]", default=30)
+    args = parser.parse_args()
+    # play bytebeat
+    ByteBeat(formula=args.formula, duration=args.time).play()
