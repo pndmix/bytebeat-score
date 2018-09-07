@@ -1,10 +1,11 @@
-import sys
 import argparse
 import struct
+import numpy as np
 import pyaudio
 
 
 class ByteBeat:
+    CHUNK = 1024
     FORMAT = pyaudio.paUInt8
     RATE = 8000
     CHANNELS = 1
@@ -13,10 +14,13 @@ class ByteBeat:
         self.formula = formula
         self.duration = int(duration)
 
-    def __buffer(self):
-        sample_count = self.duration * ByteBeat.RATE // 2
-        data = [int(eval(self.formula)) % 256 for t in range(sample_count)]
-        return struct.pack("h" * len(data), *data)
+    def __compute_with_formula(self, current, end):
+        length = ByteBeat.CHUNK // 2
+        if current + length <= end:
+            data = np.arange(current, current + length)
+        else:
+            data = np.arange(current, end)
+        return np.vectorize(lambda t: int(eval(self.formula)) % 256)(data)
 
     def play(self):
         p = pyaudio.PyAudio()
@@ -24,12 +28,23 @@ class ByteBeat:
             format=ByteBeat.FORMAT,
             channels=ByteBeat.CHANNELS,
             rate=ByteBeat.RATE,
+            frames_per_buffer=ByteBeat.CHUNK,
             output=True
         )
-        stream.write(self.__buffer())
-        stream.stop_stream()
-        stream.close()
-        p.terminate()
+        try:
+            current_sample = 0
+            end_sample = self.duration * ByteBeat.RATE // 2
+            while current_sample < end_sample:
+                data = self.__compute_with_formula(current_sample, end_sample)
+                buffer = struct.pack("h" * len(data), *data)
+                stream.write(buffer)
+                current_sample += len(data)
+        except KeyboardInterrupt:
+            pass
+        finally:
+            stream.stop_stream()
+            stream.close()
+            p.terminate()
 
 
 if __name__ == "__main__":
