@@ -17,15 +17,19 @@ class ByteBeat(Audio):
         self.formula = formula
         self.duration = int(duration)
 
-    def __compute_with_formula(self, current, end):
+    def __compute_with_formula(self, current, end, length=None):
         """
         compute with the bytebeat formula
-        :param current: current position of sample points
-        :param end: end position of sample points
+        :param current: current position of sampling points
+        :param end:     end position of sampling points
+        :param length:  count of sampling points (default: None)
         :return: 1D numpy array converted to byte stream for Audio class
         """
+        if length is None:
+            length = super().CHUNK
+
         # create a 1D numpy array as arguments
-        target_end = current + super().CHUNK
+        target_end = current + length
         if target_end <= end:
             data = np.arange(current, target_end)
         else:
@@ -41,15 +45,32 @@ class ByteBeat(Audio):
         """
         start playback
         """
-        # initialize position of sample points
+        # initialize a position of sampling points
         current_position = 0
         end_position = super().rate * self.duration
 
         # playback loop
         while current_position < end_position:
+            # write a byte stream
             buffer = self.__compute_with_formula(current_position, end_position)
-            super().write_stream(buffer)
+            super()._write_stream(buffer)
+
+            # increment a current position by CHUNK
             current_position += super().CHUNK
+
+    def record(self):
+        """
+        record bytebeat
+        """
+        # set a position of sampling points
+        current_position = 0
+        end_position = super().rate * self.duration
+
+        # create a byte stream
+        buffer = self.__compute_with_formula(current_position, end_position, end_position)
+
+        # write wav file
+        super()._write_wav(buffer)
 
 
 def argument_parser():
@@ -67,6 +88,7 @@ def argument_parser():
     parser.add_argument("formula", type=str, help="set bytebeat formula")
     parser.add_argument("-r", "--rate", type=int, help="set sampling rate[Hz]", default=8000)
     parser.add_argument("-t", "--time", type=int, help="set playback time[sec]", default=30)
+#    parser.add_argument("-s", "--score", type=int, help="set playback time[sec]", default=30)
     return parser.parse_args()
 
 
@@ -80,6 +102,7 @@ if __name__ == "__main__":
         print("Sampling rate: {} Hz, "
               "Playback time: {} sec".format(args.rate, args.time))
         b.play()
+        b.record()
     except KeyboardInterrupt:
         print("Interrupting playback")
     finally:
