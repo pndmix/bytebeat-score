@@ -1,9 +1,10 @@
 import pyaudio
+import wave
 
 
 class Audio:
     """
-    Audio class with pyaudio for ByteBeat
+    Audio class with pyaudio, parent of ByteBeat
     """
     FORMAT = pyaudio.paInt8
     CHANNELS = 1
@@ -13,7 +14,9 @@ class Audio:
         """
         :param rate: sampling rate[Hz]
         """
-        self.__rate = rate
+        self.__rate = int(rate)
+
+        # start audio stream
         self.__pa = pyaudio.PyAudio()
         self.__stream = self.__pa.open(
             format=self.FORMAT,
@@ -27,12 +30,24 @@ class Audio:
     def rate(self):
         return self.__rate
 
-    def write_stream(self, buffer):
+    def _write_stream(self, buffer):
         """
         write audio stream
         :param buffer: byte strings
         """
         self.__stream.write(buffer)
+
+    def _write_wav(self, buffer):
+        """
+        write wav file
+        :param buffer: byte strings
+        """
+        with wave.open("/aaa.wav", "w") as w:
+            w.setnchannels(self.CHANNELS)
+            w.setsampwidth(1)
+            w.setframerate(self.__rate)
+            w.writeframes(buffer)
+            w.close()
 
     def close(self):
         """
