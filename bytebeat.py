@@ -1,3 +1,4 @@
+import datetime
 import numpy as np
 from audio import Audio
 
@@ -5,7 +6,7 @@ from audio import Audio
 class ByteBeat(Audio):
     """
     ByteBeat class, children of Audio
-    let's playing bytebeat sound
+    let's enjoy bytebeat sound
     """
     def __init__(self, formula: str, rate: int=8000, duration: int=30):
         """
@@ -23,7 +24,8 @@ class ByteBeat(Audio):
         :param current: current position of sampling points
         :param end:     end position of sampling points
         :param chunk:   computing range is CHUNK (default: True)
-        :return: 1D numpy array converted to byte stream for audio
+        :return: bytes
+            byte stream for audio
         """
         # set a end position of computing range
         if chunk:
@@ -62,7 +64,7 @@ class ByteBeat(Audio):
 
     def record(self):
         """
-        record bytebeat
+        record bytebeat sound in wav
         """
         # set a position of sampling points
         current_position = 0
@@ -70,7 +72,11 @@ class ByteBeat(Audio):
 
         # create a byte stream
         buffer = self.__compute_with_formula(current_position, end_position, chunk=False)
-        super()._write_wav(buffer)
+
+        # write sound in wav
+        now = datetime.datetime.now()
+        filename = "./scores/{0:%Y%m%d-%H%M%S}.wav".format(now)
+        super()._write_wav(filename, buffer)
 
 
 def argument_parser():
