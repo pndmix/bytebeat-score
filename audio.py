@@ -10,7 +10,7 @@ class Audio:
     CHANNELS = 1
     CHUNK = 1024
 
-    def __init__(self, rate):
+    def __init__(self, rate: int):
         """
         :param rate: sampling rate[Hz]
         """
@@ -30,19 +30,20 @@ class Audio:
     def rate(self):
         return self.__rate
 
-    def _write_stream(self, buffer):
+    def _write_stream(self, buffer: bytes):
         """
         write audio stream
-        :param buffer: byte strings
+        :param buffer: byte stream for pyaudio
         """
         self.__stream.write(buffer)
 
-    def _write_wav(self, buffer):
+    def _write_wav(self, filename: str, buffer: bytes):
         """
         write wav file
-        :param buffer: byte strings
+        :param filename: wav filename
+        :param buffer:   byte stream for pyaudio
         """
-        with wave.open("/aaa.wav", "w") as w:
+        with wave.open(filename, "w") as w:
             w.setnchannels(self.CHANNELS)
             w.setsampwidth(1)
             w.setframerate(self.__rate)
