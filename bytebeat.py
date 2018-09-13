@@ -85,25 +85,35 @@ def argument_parser():
     )
 
     # set parsing arguments
-    parser.add_argument("formula", type=str, help="set bytebeat formula")
-    parser.add_argument("-r", "--rate", type=int, help="set sampling rate[Hz]", default=8000)
-    parser.add_argument("-t", "--time", type=int, help="set playback time[sec]", default=30)
-#    parser.add_argument("-s", "--score", type=int, help="set playback time[sec]", default=30)
+    parser.add_argument("formula", type=str,
+                        help="set bytebeat formula")
+    parser.add_argument("-r", "--rate", type=int, default=8000,
+                        help="set sampling rate[Hz]")
+    parser.add_argument("-t", "--time", type=int, default=30,
+                        help="set playback time[sec]")
+    parser.add_argument("-s", "--score", action="store_true",
+                        help="recording sound")
     return parser.parse_args()
 
 
 if __name__ == "__main__":
-    # instantiate ByteBeat
+    from threading import Thread
+    # get parsed arguments
     args = argument_parser()
-    b = ByteBeat(formula=args.formula, rate=args.rate, duration=args.time)
 
-    # start ByteBeat sound
+    # instantiate ByteBeat
+    b = ByteBeat(formula=args.formula, rate=args.rate, duration=args.time)
     try:
         print("Sampling rate: {} Hz, "
               "Playback time: {} sec".format(args.rate, args.time))
+
+        # create and start new daemon thread for recording if score option
+        if args.score:
+            Thread(target=b.record, daemon=True).start()
+
+        # start playback
         b.play()
-        b.record()
     except KeyboardInterrupt:
-        print("Interrupting playback")
+        print("interrupting playback")
     finally:
         b.close()
