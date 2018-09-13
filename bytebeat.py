@@ -5,31 +5,33 @@ from audio import Audio
 class ByteBeat(Audio):
     """
     ByteBeat class, children of Audio
-    playing bytebeat music
+    let's playing bytebeat sound
     """
-    def __init__(self, formula, rate=8000, duration=30):
+    def __init__(self, formula: str, rate: int=8000, duration: int=30):
         """
         :param formula:  bytebeat formula
         :param rate:     sampling rate[Hz] (default: 8000)
         :param duration: playback time[seconds] (default: 30)
         """
         super().__init__(rate)
-        self.formula = formula
+        self.formula = str(formula)
         self.duration = int(duration)
 
-    def __compute_with_formula(self, current, end, length=None):
+    def __compute_with_formula(self, current: int, end: int, chunk: bool=True):
         """
         compute with the bytebeat formula
         :param current: current position of sampling points
         :param end:     end position of sampling points
-        :param length:  count of sampling points (default: None)
-        :return: 1D numpy array converted to byte stream for Audio class
+        :param chunk:   computing range is CHUNK (default: True)
+        :return: 1D numpy array converted to byte stream for audio
         """
-        if length is None:
-            length = super().CHUNK
+        # set a end position of computing range
+        if chunk:
+            target_end = current + super().CHUNK
+        else:
+            target_end = current + end
 
         # create a 1D numpy array as arguments
-        target_end = current + length
         if target_end <= end:
             data = np.arange(current, target_end)
         else:
@@ -51,7 +53,7 @@ class ByteBeat(Audio):
 
         # playback loop
         while current_position < end_position:
-            # write a byte stream
+            # create a byte stream
             buffer = self.__compute_with_formula(current_position, end_position)
             super()._write_stream(buffer)
 
@@ -67,9 +69,7 @@ class ByteBeat(Audio):
         end_position = super().rate * self.duration
 
         # create a byte stream
-        buffer = self.__compute_with_formula(current_position, end_position, end_position)
-
-        # write wav file
+        buffer = self.__compute_with_formula(current_position, end_position, chunk=False)
         super()._write_wav(buffer)
 
 
@@ -97,7 +97,7 @@ if __name__ == "__main__":
     args = argument_parser()
     b = ByteBeat(formula=args.formula, rate=args.rate, duration=args.time)
 
-    # start ByteBeat
+    # start ByteBeat sound
     try:
         print("Sampling rate: {} Hz, "
               "Playback time: {} sec".format(args.rate, args.time))
