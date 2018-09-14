@@ -1,4 +1,4 @@
-import datetime
+#import datetime
 import numpy as np
 from audio import Audio
 
@@ -62,9 +62,10 @@ class ByteBeat(Audio):
             # increment a current position by CHUNK
             current_position += super().CHUNK
 
-    def record(self):
+    def record(self, filename: str):
         """
         record bytebeat sound in wav
+        :param filename: wav filename
         """
         # set a position of sampling points
         current_position = 0
@@ -74,31 +75,30 @@ class ByteBeat(Audio):
         buffer = self.__compute_with_formula(current_position, end_position, chunk=False)
 
         # write sound in wav
-        now = datetime.datetime.now()
-        filename = "./scores/{0:%Y%m%d-%H%M%S}.wav".format(now)
         super()._write_wav(filename, buffer)
 
 
 def argument_parser():
     """
     parse commandline arguments for ByteBeat class
-    :return: parsed arguments
+    :return: namespace object
+        parsed arguments
     """
     # create a parser
     import argparse
-    parser = argparse.ArgumentParser(
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
-    )
+    import datetime
+    parser = argparse.ArgumentParser()
 
     # set parsing arguments
     parser.add_argument("formula", type=str,
-                        help="set bytebeat formula")
+                        help="bytebeat formula")
     parser.add_argument("-r", "--rate", type=int, default=8000,
-                        help="set sampling rate[Hz]")
+                        help="sampling rate[Hz] (default: 8000)")
     parser.add_argument("-t", "--time", type=int, default=30,
-                        help="set playback time[sec]")
-    parser.add_argument("-s", "--score", action="store_true",
-                        help="recording sound")
+                        help="playback time[sec] (default: 30)")
+    parser.add_argument("-s", "--score-name", type=str, nargs="?",
+                        const="./scores/{0:%Y%m%d-%H%M%S}.wav".format(datetime.datetime.now()),
+                        help="write a wav file (default: ./scores/[CURRENT_TIME].wav)")
     return parser.parse_args()
 
 
@@ -115,7 +115,7 @@ if __name__ == "__main__":
 
         # create and start new daemon thread for recording if score option
         if args.score:
-            Thread(target=b.record, daemon=True).start()
+            Thread(target=b.record, args=(args.score,), daemon=True).start()
 
         # start playback
         b.play()
