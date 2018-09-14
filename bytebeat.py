@@ -1,5 +1,6 @@
 import numpy as np
 from audio import Audio
+from os import path
 
 
 class ByteBeat(Audio):
@@ -76,6 +77,18 @@ class ByteBeat(Audio):
         # write sound in wav
         super()._write_wav(filename, buffer)
 
+    def __write_score(self, filename: str):
+        text = "| [{0}]({0}) | {1} | {2} | {3} |\n".format(
+            path.basename(filename), self.formula, self.rate, self.duration
+        )
+        with open("./scores/scores.md", "a") as f:
+            f.write(text)
+
+    def score(self, filename: str):
+        print("write a file")
+        self.__write_score(filename)
+        self.record(filename)
+
 
 def argument_parser():
     """
@@ -97,7 +110,7 @@ def argument_parser():
                         help="playback time[sec] (default: 30)")
     parser.add_argument("-s", "--score-name", type=str, nargs="?",
                         const="./scores/{0:%Y%m%d-%H%M%S}.wav".format(datetime.datetime.now()),
-                        help="write a wav file (default: ./scores/[CURRENT_TIME].wav)")
+                        help="write a wav file (default: ./scores/[TIMESTAMP].wav)")
     return parser.parse_args()
 
 
@@ -114,7 +127,7 @@ if __name__ == "__main__":
 
         # create and start new daemon thread for recording if score-name option
         if args.score_name:
-            Thread(target=b.record, args=(args.score_name,), daemon=True).start()
+            Thread(target=b.score, args=(args.score_name,), daemon=True).start()
 
         # start playback
         b.play()
