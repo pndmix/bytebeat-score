@@ -1,4 +1,3 @@
-#import datetime
 import numpy as np
 from audio import Audio
 
@@ -113,9 +112,9 @@ if __name__ == "__main__":
         print("Sampling rate: {} Hz, "
               "Playback time: {} sec".format(args.rate, args.time))
 
-        # create and start new daemon thread for recording if score option
-        if args.score:
-            Thread(target=b.record, args=(args.score,), daemon=True).start()
+        # create and start new daemon thread for recording if score-name option
+        if args.score_name:
+            Thread(target=b.record, args=(args.score_name,), daemon=True).start()
 
         # start playback
         b.play()
