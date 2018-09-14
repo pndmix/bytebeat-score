@@ -48,7 +48,6 @@ class Audio:
             w.setsampwidth(1)
             w.setframerate(self.__rate)
             w.writeframes(buffer)
-            w.close()
 
     def close(self):
         """
