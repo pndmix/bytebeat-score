@@ -1,6 +1,6 @@
+import os
 import numpy as np
 from audio import Audio
-from os import path
 
 
 class ByteBeat(Audio):
@@ -62,10 +62,10 @@ class ByteBeat(Audio):
             # increment a current position by CHUNK
             current_position += super().CHUNK
 
-    def record(self, filename: str):
+    def record(self, path: str):
         """
         record bytebeat sound in wav
-        :param filename: wav filename
+        :param path: wav file path
         """
         # set a position of sampling points
         current_position = 0
@@ -75,47 +75,84 @@ class ByteBeat(Audio):
         buffer = self.__compute_with_formula(current_position, end_position, chunk=False)
 
         # write sound in wav
-        super()._write_wav(filename, buffer)
+        super()._write_wav(path, buffer)
 
-    def __write_score(self, filename: str):
+    def write_score(self, path: str):
+        """
+        create and write a score file
+        :param path: wav file path
+        """
+        # split path
+        dir_path, filename = os.path.split(path)
+
+        # create a new score file if not exist
+        score_path = dir_path + "/scores.md"
+        if not os.path.exists(score_path):
+            text = "# ByteBeat Scores\n" \
+                   "| NAME | FORMULA | RATE[Hz] | TIME[sec] |\n" \
+                   "| :--- | :--- | :---: | :---: |\n"
+            with open(score_path, "w") as f:
+                f.write(text)
+
+        # write a score file
         text = "| [{0}]({0}) | {1} | {2} | {3} |\n".format(
-            path.basename(filename), self.formula, self.rate, self.duration
+            filename, self.formula, self.rate, self.duration
         )
-        with open("./scores/scores.md", "a") as f:
+        with open(score_path, "a") as f:
             f.write(text)
-
-    def score(self, filename: str):
-        print("write a file")
-        self.__write_score(filename)
-        self.record(filename)
-
-
-def argument_parser():
-    """
-    parse commandline arguments for ByteBeat class
-    :return: namespace object
-        parsed arguments
-    """
-    # create a parser
-    import argparse
-    import datetime
-    parser = argparse.ArgumentParser()
-
-    # set parsing arguments
-    parser.add_argument("formula", type=str,
-                        help="bytebeat formula")
-    parser.add_argument("-r", "--rate", type=int, default=8000,
-                        help="sampling rate[Hz] (default: 8000)")
-    parser.add_argument("-t", "--time", type=int, default=30,
-                        help="playback time[sec] (default: 30)")
-    parser.add_argument("-s", "--score-name", type=str, nargs="?",
-                        const="./scores/{0:%Y%m%d-%H%M%S}.wav".format(datetime.datetime.now()),
-                        help="write a wav file (default: ./scores/[TIMESTAMP].wav)")
-    return parser.parse_args()
 
 
 if __name__ == "__main__":
     from threading import Thread
+
+    def argument_parser():
+        """
+        parse commandline arguments for ByteBeat class
+        :return: namespace object
+            parsed arguments
+        """
+        # create a parser
+        import argparse
+        import datetime
+        parser = argparse.ArgumentParser()
+
+        # set parsing arguments
+        parser.add_argument("formula", type=str,
+                            help="bytebeat formula")
+        parser.add_argument("-r", "--rate", type=int, default=8000,
+                            help="sampling rate[Hz] (default: 8000)")
+        parser.add_argument("-t", "--time", type=int, default=30,
+                            help="playback time[sec] (default: 30)")
+        parser.add_argument("-s", "--score", type=str, nargs="?",
+                            const="./scores/{0:%Y%m%d-%H%M%S}.wav".format(datetime.datetime.now()),
+                            help="write a wav file (default: ./scores/[TIMESTAMP].wav)")
+        return parser.parse_args()
+
+    def score(obj: ByteBeat, path: str):
+        """
+        optional score feature with commandline
+        feature: writing score, recording sound in wav
+        :param obj: ByteBeat instance
+        :param path: wav file path
+        """
+        from sys import stderr
+        stderr.write("Scoring now ... ")
+        stderr.flush()
+
+        # create and start new threads
+        threads = list()
+        threads.append(Thread(target=obj.record, args=(path,), name="record"))
+        threads.append(Thread(target=obj.write_score, args=(path,), name="write"))
+
+        for thread in threads:
+            thread.start()
+
+        for thread in threads:
+            thread.join()
+
+        stderr.write("done.\n")
+        stderr.flush()
+
     # get parsed arguments
     args = argument_parser()
 
@@ -123,11 +160,11 @@ if __name__ == "__main__":
     b = ByteBeat(formula=args.formula, rate=args.rate, duration=args.time)
     try:
         print("Sampling rate: {} Hz, "
-              "Playback time: {} sec".format(args.rate, args.time))
+              "Playback time: {} sec".format(b.rate, b.duration))
 
-        # create and start new daemon thread for recording if score-name option
-        if args.score_name:
-            Thread(target=b.score, args=(args.score_name,), daemon=True).start()
+        # create and start a new thread if score option
+        if args.score:
+            Thread(target=score, args=(b, args.score,), name="score").start()
 
         # start playback
         b.play()
