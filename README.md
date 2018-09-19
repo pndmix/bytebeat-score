@@ -5,7 +5,6 @@ This is a CLI *bytebeat* sound application with python3. Bytebeat is algorithmic
 - numpy
 - pyaudio
 
-### install
 ~~~bash
 $ pip install -r requirements.txt
 ~~~
@@ -39,7 +38,7 @@ Use score option, save this sound and a score file in [./scores](./scores) direc
 
 ## Reference
 - Viznut's blog
-  - [Algorithmic symphonies from one line of code -- how and why?](http://countercomplex.blogspot.com/2011/10/some-deep-analysis-of-one-line-music.html)
+  - [Algorithmic symphonies from one line of code -- how and why?](http://countercomplex.blogspot.com/2011/10/algorithmic-symphonies-from-one-line-of.html)
   - [Some deep analysis of one-line music programs.](http://countercomplex.blogspot.com/2011/10/some-deep-analysis-of-one-line-music.html)
 - Kragen's text
   - [Bytebeat — Kragen](http://canonical.org/~kragen/bytebeat/)
