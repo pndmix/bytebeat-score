@@ -1,7 +1,7 @@
 # bytebeat-score
 This is a CLI *bytebeat* sound application with python3. Bytebeat is algorithmic sound generated from one line of code.
 
-## Prerequisites
+## Dependencies install
 - numpy
 - pyaudio
 
@@ -10,17 +10,28 @@ $ pip install -r requirements.txt
 ~~~
 
 ## Usage
-### play simple quater notes
+### limitations for bytebeat playground
+| limitation | operator |
+| --- | --- |
+| usable variable | t |
+| mathematical operators | +, -, *, /, %, (, ), ** |
+| bitwise operators | <<, >>, &, \|, ^, ~ |
+| relational operators | <, <=, >, >=, !=, == |
+
+The above *t* and *logical operators* are enough for combining good sound formulas.
+
+### play sawtooth wave
 ~~~bash
-$ python bytebeat.py "t>>4"
+$ python bytebeat.py "t"
 
 Sampling rate: 8000 Hz, Playback time: 30 sec
 ~~~
-**Note**: enclose bytebeat characters in double quotes (e.g. *"t>>4"*)
+It's very simple formula with t, enjoy the sound by only this.  
+**Note**: enclose bytebeat characters in double quotes (e.g. *"t|t\*2"*)
 
 ### play and score melody
 ~~~bash
-$ python bytebeat.py "(t*((2+(t>>9&4))*(2+(3&t>>14))))>>(t>>8&2)" --score
+$ python bytebeat.py "t*((3+(1^t>>10&5))*(5+(3&t>>14)))>>(t>>8&3)" --score
 
 Sampling rate: 8000 Hz, Playback time: 30 sec
 Scoring now ... done.
@@ -28,13 +39,13 @@ Scoring now ... done.
 Use score option, save this sound and a score file in [./scores](./scores) directory. More example sounds in [./scores/examples](./scores/examples) directory.  
 **Note**: can be set the sound filename as score option's argument (e.g. *./scores/melody.wav*)
 
-### optional features list
+### optional commands
 | option | feature |
 | --- | --- |
-| -h, --help | show this help message
-| -r, --rate | set sampling rate[Hz]
-| -t, --time | set playback time[seconds]
-| -s, --score | write bytebeat sound in wav
+| -h, --help | show this help message |
+| -r, --rate | set sampling rate[Hz] |
+| -t, --time | set playback time[seconds] |
+| -s, --score | write bytebeat sound in wav |
 
 ## Reference
 - Viznut's blog
