@@ -35,12 +35,13 @@ class ByteBeat(Audio):
 
         # create a 1D numpy array as arguments
         if target_end <= end:
-            data = np.arange(current, target_end)
+            data = np.arange(current, target_end, dtype=np.int64)
         else:
-            data = np.arange(current, end)
+            data = np.arange(current, end, dtype=np.int64)
 
         # compute with the bytebeat formula
-        result = np.vectorize(lambda t: int(eval(self.formula)) % 256)(data)
+        formula = self.formula.replace("/", "//")  # replace division operator for integer
+        result = np.vectorize(lambda t: eval(formula) % 256)(data)
 
         # convert a 1D numpy array into a byte stream for audio
         return result.astype(np.int8).tostring()
