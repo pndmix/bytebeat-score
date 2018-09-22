@@ -163,13 +163,13 @@ if __name__ == "__main__":
         print("Sampling rate: {} Hz, "
               "Playback time: {} sec".format(b.rate, b.duration))
 
-        # create and start a new thread if score option
+        # create and start a new daemon thread if score option
         if args.score:
-            Thread(target=score, args=(b, args.score,), name="score").start()
+            Thread(target=score, args=(b, args.score,), name="score", daemon=True).start()
 
         # start playback
         b.play()
     except KeyboardInterrupt:
-        print("interrupting playback")
+        print("interrupting")
     finally:
         b.close()
