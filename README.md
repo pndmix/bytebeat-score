@@ -10,7 +10,7 @@ $ pip install -r requirements.txt
 ~~~
 
 ## Usage
-### limitations for bytebeat playground
+### limitations for bytebeat formula
 | limitation | operator |
 | --- | --- |
 | usable variable | t |
@@ -18,7 +18,7 @@ $ pip install -r requirements.txt
 | bitwise operators | <<, >>, &, \|, ^, ~ |
 | relational operators | <, <=, >, >=, !=, == |
 
-The above *t* and *logical operators* are enough for combining good sound formulas.
+The above *t* and *operators* are enough for combining good sound formulas.
 
 ### play sawtooth wave
 ~~~bash
