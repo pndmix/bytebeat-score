@@ -4,7 +4,7 @@ import wave
 
 class Audio:
     """
-    Audio class with pyaudio, parent of ByteBeat
+    Audio class with pyaudio
     """
     FORMAT = pyaudio.paInt8
     CHANNELS = 1
@@ -26,18 +26,14 @@ class Audio:
             output=True
         )
 
-    @property
-    def rate(self):
-        return self.__rate
-
-    def _write_stream(self, buffer: bytes):
+    def write_stream(self, buffer: bytes):
         """
         write audio stream
         :param buffer: byte stream for pyaudio
         """
         self.__stream.write(buffer)
 
-    def _write_wav(self, filename: str, buffer: bytes):
+    def write_wav(self, filename: str, buffer: bytes):
         """
         write wav file
         :param filename: wav filename
