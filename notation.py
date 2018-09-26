@@ -1,3 +1,28 @@
+# formula operators
+operator = {
+    # mathematical
+    "+": (lambda a, b: a + b),
+    "-": (lambda a, b: a - b),
+    "*": (lambda a, b: a * b),
+    "**": (lambda a, b: a ** b),
+    "/": (lambda a, b: a // b if b > 0 else 0),
+    "%": (lambda a, b: a % b if b > 0 else 0),
+    # bitwise
+    ">>": (lambda a, b: a >> b),
+    "<<": (lambda a, b: a << b),
+    "&": (lambda a, b: a & b),
+    "|": (lambda a, b: a | b),
+    "^": (lambda a, b: a ^ b),
+    # relational
+    "<": (lambda a, b: a < b),
+    "<=": (lambda a, b: a <= b),
+    ">": (lambda a, b: a > b),
+    ">=": (lambda a, b: a >= b),
+    "!=": (lambda a, b: a != b),
+    "==": (lambda a, b: a == b),
+}
+
+
 def infix(formula: str, arg: int):
     """
     evaluation of infix expression
@@ -21,20 +46,9 @@ def postfix(formula: str, arg: int):
     :return: int:
         computation result
     """
-    operator = {
-        "+": (lambda a, b: a + b),
-        "-": (lambda a, b: a - b),
-        "*": (lambda a, b: a * b),
-        "/": (lambda a, b: a // b if b > 0 else 0),
-        "%": (lambda a, b: a % b if b > 0 else 0),
-        ">": (lambda a, b: a >> b),
-        "<": (lambda a, b: a << b),
-        "&": (lambda a, b: a & b),
-        "|": (lambda a, b: a | b),
-        "^": (lambda a, b: a ^ b),
-    }
-    stack = []
-    characters = formula.replace("t", str(arg)).replace(">>", ">").replace("<<", "<")
+    global operator
+    stack = list()
+    characters = formula.replace("t", str(arg))
     for c in characters.split():
         if c not in operator.keys():
             stack.append(int(c))
