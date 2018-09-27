@@ -1,25 +1,27 @@
 import os
 import numpy as np
 from audio import Audio
-from notation import notation
+from notation import infix, postfix
 
 
-class ByteBeat(Audio):
+class ByteBeat:
     """
-    ByteBeat class, children of Audio
+    ByteBeat class
     let's enjoy bytebeat sound
     """
-    def __init__(self, formula: str, rate: int=8000, duration: int=30, notation_name: str="infix"):
+    def __init__(self, formula: str,
+                 rate: int=8000, duration: int=30, notation: str="infix"):
         """
-        :param formula:       bytebeat formula
-        :param rate:          sampling rate[Hz] (default: 8000)
-        :param duration:      playback time[seconds] (default: 30)
-        :param notation_name: key of formula notation dict (default: infix)
+        :param formula:  bytebeat formula
+        :param rate:     sampling rate[Hz] (default: 8000)
+        :param duration: playback time[seconds] (default: 30)
+        :param notation: formula notation name (default: infix)
         """
-        super().__init__(rate)
         self.formula = str(formula)
+        self.rate = int(rate)
         self.duration = int(duration)
-        self.notation = notation[notation_name]
+        self.notation = eval(notation)  # infix or postfix function
+        self.audio = Audio(self.rate)  # instantiate and open audio stream
 
     def __compute_with_formula(self, current: int, end: int, chunk: bool=True):
         """
@@ -32,7 +34,7 @@ class ByteBeat(Audio):
         """
         # set a end position of computing range
         if chunk:
-            target_end = current + super().CHUNK
+            target_end = current + self.audio.CHUNK
         else:
             target_end = current + end
 
@@ -54,16 +56,16 @@ class ByteBeat(Audio):
         """
         # initialize a position of sampling points
         current_position = 0
-        end_position = super().rate * self.duration
+        end_position = self.rate * self.duration
 
         # playback loop
         while current_position < end_position:
             # create a byte stream
             buffer = self.__compute_with_formula(current_position, end_position)
-            super()._write_stream(buffer)
+            self.audio.write_stream(buffer)
 
             # increment a current position by CHUNK
-            current_position += super().CHUNK
+            current_position += self.audio.CHUNK
 
     def record(self, path: str):
         """
@@ -72,13 +74,13 @@ class ByteBeat(Audio):
         """
         # set a position of sampling points
         current_position = 0
-        end_position = super().rate * self.duration
+        end_position = self.rate * self.duration
 
         # create a byte stream
         buffer = self.__compute_with_formula(current_position, end_position, chunk=False)
 
         # write sound in wav
-        super()._write_wav(path, buffer)
+        self.audio.write_wav(path, buffer)
 
     def write_score(self, path: str):
         """
@@ -168,7 +170,7 @@ if __name__ == "__main__":
     args = argument_parser()
 
     # instantiate ByteBeat
-    b = ByteBeat(formula=args.formula, rate=args.rate, duration=args.time, notation_name=args.postfix)
+    b = ByteBeat(formula=args.formula, rate=args.rate, duration=args.time, notation=args.postfix)
     try:
         print("Sampling rate: {} Hz, "
               "Playback time: {} sec".format(b.rate, b.duration))
@@ -182,4 +184,4 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("interrupting")
     finally:
-        b.close()
+        b.audio.close()

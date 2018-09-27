@@ -57,10 +57,3 @@ def postfix(formula: str, arg: int):
             x = stack.pop()
             stack.append(operator[c](x, y))
     return stack[0]
-
-
-# formula notation dictionary
-notation = {
-    "infix":   (lambda f, t: infix(f, t)),
-    "postfix": (lambda f, t: postfix(f, t)),
-}
