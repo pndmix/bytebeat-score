@@ -18,7 +18,7 @@ $ pip install -r requirements.txt
 | bitwise operators | <<, >>, &, \|, ^, ~ |
 | relational operators | <, <=, >, >=, !=, == |
 
-The above *t* and *operators* are enough for combining good sound formulas.
+The above *operators* are enough for combining good sound formulas. In addition, support for two notations *infix* and *postfix*.
 
 ### play sawtooth wave
 ~~~bash
@@ -27,22 +27,29 @@ $ python bytebeat.py "t"
 Sampling rate: 8000 Hz, Playback time: 30 sec
 ~~~
 It's very simple formula with t, enjoy the sound by only this.  
-**Note**: enclose bytebeat characters in double quotes (e.g. *"t|t\*2"*)
+**Note**: enclose bytebeat characters in double quotes (e.g. "t|t\*2")
 
 ### play and score melody
 ~~~bash
-$ python bytebeat.py "t*((3+(1^t>>10&5))*(5+(3&t>>14)))>>(t>>8&3)" --score
+$ python bytebeat.py "t*((3+(t>>10&5))*(5+(3&t>>14)))>>(t>>8&3)" --score
 
 Sampling rate: 8000 Hz, Playback time: 30 sec
 Scoring now ... done.
 ~~~
 Use score option, save this sound and a score file in [./scores](./scores) directory. More example sounds in [./scores/examples](./scores/examples) directory.  
-**Note**: can be set the sound filename as score option's argument (e.g. *./scores/melody.wav*)
+**Note**: can be set the sound filename as score option's argument (e.g. ./scores/melody.wav)
+
+### postfix notation a.k.a "Reverse Polish Notation"
+~~~bash
+$ python bytebeat.py "t 10 >> 5 & 3 + t 14 >> 3 & 5 + * t * t 8 >> 3 & >>" --postfix
+~~~
+Use postfix option, can write formula in postfix notation. This formula is the same as the above section.
 
 ### optional commands
 | option | feature |
 | --- | --- |
 | -h, --help | show this help message |
+| -p, --postfix | postfix notation |
 | -r, --rate | set sampling rate[Hz] |
 | -t, --time | set playback time[seconds] |
 | -s, --score | write bytebeat sound in wav |
